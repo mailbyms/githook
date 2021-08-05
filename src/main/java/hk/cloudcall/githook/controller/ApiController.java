@@ -15,14 +15,15 @@ import java.io.InputStreamReader;
 @RestController
 @RequestMapping("/hook")
 public class ApiController {
-    String command = "/data/gitsync.sh";
+    String shell = "/data/githook/gitsync.sh";
 
     // 运行命令，抓取控制台输出
     private void runSync(String name, String url) throws Exception {
-        command += " " + name + " " + url;
+        String command = shell + " " + name + " " + url;
         System.out.println("command:" + command);
         Process p = Runtime.getRuntime().exec(command);
 
+        /* 不需要 p.waitFor 阻塞。因为 webhook 供供是通知作用，不需要等处理完成（可能会超时）
         InputStream is = p.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         p.waitFor();
@@ -38,13 +39,16 @@ public class ApiController {
             System.out.println(s);
         }
         reader.close();
+        */
     }
 
     @PostMapping("/alicode")
     public BaseResult match(@RequestBody @Validated HookParams hp) throws Exception {
         System.out.println(hp);
+        String repoName = hp.getRepository().getName();
+        String repoUrl = hp.getRepository().getUrl();
 
-        runSync(hp.getRepository().getName(), hp.getRepository().getUrl());
+        runSync(repoName, repoUrl);
 
         BaseResult result = new BaseResult();
         result.setSuccess(true);

@@ -1,8 +1,9 @@
 #!/bin/bash
 echo "begin to clone $2"
-project_dir="/tmp/$1"
+current_time=`date "+%Y%m%d_%H%M%S"`
+project_dir="/tmp/$1_$current_time"
 rm -fr "$project_dir"
-mkdir -p "$project_dir"
+#mkdir -p "$project_dir"
 
 git clone --mirror "$2" "$project_dir"
 cd "$project_dir"
