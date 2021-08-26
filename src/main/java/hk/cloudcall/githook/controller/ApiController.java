@@ -2,25 +2,24 @@ package hk.cloudcall.githook.controller;
 
 import hk.cloudcall.githook.param.BaseResult;
 import hk.cloudcall.githook.param.HookParams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
 @RestController
 @RequestMapping("/hook")
 public class ApiController {
+    private final static Logger logger = LoggerFactory.getLogger(ApiController.class);
     String shell = "/data/githook/gitsync.sh";
 
     // 运行命令，抓取控制台输出
     private void runSync(String name, String url) throws Exception {
         String command = shell + " " + name + " " + url;
-        System.out.println("command:" + command);
+        logger.info("command:{}", command);
         Process p = Runtime.getRuntime().exec(command);
 
         /* 不需要 p.waitFor 阻塞。因为 webhook 供供是通知作用，不需要等处理完成（可能会超时）
@@ -44,7 +43,7 @@ public class ApiController {
 
     @PostMapping("/alicode")
     public BaseResult match(@RequestBody @Validated HookParams hp) throws Exception {
-        System.out.println(hp);
+        logger.info("Callback params: {}", hp);
         String repoName = hp.getRepository().getName();
         String repoUrl = hp.getRepository().getUrl();
 
